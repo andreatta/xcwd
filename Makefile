@@ -32,5 +32,5 @@ distclean: clean
 	rm -vf ${EXE}
 
 install: ${EXE}
-	install -m 0755 ${EXE} $(prefix)/bin
+	install -m 0755 ${EXE} $(prefix)bin
 

@@ -22,7 +22,10 @@
 # include <libutil.h>
 #endif
 
-#define DEBUG 0
+#define DEBUG         0
+
+#define READ_SIZE   200
+#define READ_COUNT    1
 
 #define XA_STRING   (XInternAtom(dpy, "STRING", 0))
 #define XA_CARDINAL (XInternAtom(dpy, "CARDINAL", 0))
@@ -157,6 +160,7 @@ static processes_t getProcesses(void)
     glob_t globbuf;
     unsigned int i, j, k;
     char line[201] = {0};
+    size_t rd;
 
     glob("/proc/[0-9]*", GLOB_NOSORT, NULL, &globbuf);
     p = malloc(sizeof(struct processes_s));
@@ -173,7 +177,10 @@ static processes_t getProcesses(void)
         tn = fopen(name, "r");
         if (tn == NULL)
             continue;
-        fread(line, 200, 1, tn);
+        rd = fread(line, READ_SIZE, READ_COUNT, tn);
+        if (rd != READ_SIZE * READ_COUNT) {
+            LOG("ERR: fread %zu (%x)", rd, READ_SIZE * READ_COUNT);
+        }
         p->ps[j].pid = atoi(strtok(line, " "));
         k = snprintf(p->ps[j].name, 32, "%s", strtok(NULL, " ") + 1);
         p->ps[j].name[k - 1] = 0;
